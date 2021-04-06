@@ -84,7 +84,7 @@ no *searchParent(no *rbt , void *inf, int infoComp(void *, void *)){
 
         else if(infoComp(rbt->left->inf, inf) == 1)
             return searchParent(rbt->left, inf, infoComp);
-        
+
         else
             return searchParent(rbt->right, inf, infoComp);
     }
@@ -95,72 +95,56 @@ no *searchParent(no *rbt , void *inf, int infoComp(void *, void *)){
 
         else if(infoComp(rbt->right->inf, inf) == 1)
             return searchParent(rbt->right, inf, infoComp);
-        
+
         else
             return searchParent(rbt->left, inf, infoComp);
-    }   
-}
-
-// // Retorna a altura da AVL que eh relativa ao nivel maximo das folhas.
-// int height(no *avl){
-//     if (!avl)
-//         return 0;
-//     // Compara a altura da sub-arvore esquerda com a direita.
-//     // Vai incrementando o valor da altura a cada retorno da chamada recursiva,
-//     // ate que tenhamos o maior caminho possivel da raiz ate a folha de maior nivel.
-//     else if( height(leftAVL(avl)) >= height(rightAVL(avl)) )
-//         return 1 + height(leftAVL(avl));
-//     else
-//         return 1 + height(rightAVL(avl));
-// }
-
-// // Retorna o no considerado o menor elemento na AVL.
-// no *findSmalLestNo(no *avl){
-//     if(!avl) return NULL;
-//     if(!(leftAVL(avl)))
-//         return avl;
-//     else
-//         return findSmalLestNo(leftAVL(avl));
-// }
-
-// Insercao na sub-arvore direita, da sub-arvore direita da raiz.
-// Rotacao a esquerda.
-void R_RotationRBT(no **pivo){
-    no *a = (*pivo)->right;
-
-    // Redefinicoes de referencias.
-    if ((*pivo)->parent != NULL){
-        if ( (*pivo) == (*pivo)->parent->left)
-            (*pivo)->parent->left = a;
-        else
-            (*pivo)->parent->right = a;
     }
-    a->parent = (*pivo)->parent;
-
-    (*pivo)->right = a->left;
-    a->left->parent = (a->left == NULL) ? NULL : (*pivo);
-
-    a->left = (*pivo);
-    (*pivo)->parent = a;
-
-    // A raiz da subárvore passada no parâmetro é atualizada.
-    *pivo = a;
 }
 
-// Insercao na sub-arvore esquerda, da sub-arvore esquerda da raiz.
-// Rotacao a direita.
-void L_RotationRBT(no **pivo){
+// Insercao na sub-arvore direita.
+// Rotacao a esquerda.
+void R_RotationRBT(no **root, no **pivoParent ,no **pivo){
+    if (!(*pivo)) return;
 
     // Redefinicoes de referencias.
-    if ((*pivo)->parent != NULL){
-        if ( (*pivo) == (*pivo)->parent->left)
-            (*pivo)->parent->left = (*pivo)->left;
+    if (*pivoParent != NULL){
+        if (positionChildFromParent(*pivo) == 1)
+            (*pivoParent)->left = (*pivo)->right;
         else
-            (*pivo)->parent->right = (*pivo)->left;
+            (*pivoParent)->right = (*pivo)->right;
+    }
+    (*pivo)->right->parent = (*pivo)->parent;
+
+    if ((*pivo)->right->left)
+        (*pivo)->right->left->parent = (*pivo);
+
+    (*pivo)->parent = (*pivo)->right;
+
+    (*pivo)->right = (*pivo)->right->left;
+
+    (*pivo)->parent->left = (*pivo);
+
+    *pivo = (*pivo)->parent;
+
+    if (!(*pivo)->parent)
+        *root = *pivo;
+}
+
+// Insercao na sub-arvore esquerda.
+// Rotacao a direita.
+void L_RotationRBT(no **root, no **pivoParent, no **pivo){
+    if (!(*pivo)) return;
+
+    // Redefinicoes de referencias.
+    if (*pivoParent != NULL){
+        if (positionChildFromParent(*pivo) == 1)
+            (*pivoParent)->left = (*pivo)->left;
+        else
+            (*pivoParent)->right = (*pivo)->left;
     }
     (*pivo)->left->parent = (*pivo)->parent;
-    printf("\n\n aki S \n\n");
-    
+
+
     if ((*pivo)->left->right)
         (*pivo)->left->right->parent = (*pivo);
 
@@ -173,247 +157,83 @@ void L_RotationRBT(no **pivo){
 
     // A raiz da subárvore passada no parâmetro é atualizada.
     *pivo = (*pivo)->parent;
+
+    if (!(*pivo)->parent) 
+        *root = *pivo;
 }
 
-void balance3(no **rbt, no **root){
-    if (!(*rbt)) return;
-    printf("\n\nsimmm\n\n");
+void balance(no **root, no **newNo){
+    no *parent, *grandpa, *uncle;
 
-    if ((*rbt)->parent){
-        if (isleaf(*rbt)){
-            return;
+    while (isRed((*newNo)->parent))
+    {
+        parent = (*newNo)->parent;
+        grandpa = parent->parent;
+        if (parent == grandpa->left)
+            uncle = grandpa->right;
+        else
+            uncle = grandpa->left;
+        if (isRed(uncle)){
+            parent->color = black;
+            uncle->color = black;
+            grandpa->color = red;
+            (*newNo) = grandpa;
         }
-        
-        if ((isleaf((*rbt)->left) || !(*rbt)->left) && (isleaf((*rbt)->right) || !(*rbt)->right)){
-            return;
+        else if (positionChildFromParent(parent) == 1){
+            if (positionChildFromParent(*newNo) == -1){
+                *newNo = parent;
+                R_RotationRBT(root, &(*newNo)->parent, newNo);
+            }
+            parent->color = black;
+            grandpa->color = red;
+            *newNo = grandpa;
+            L_RotationRBT(root, &(*newNo)->parent, newNo);
+        }
+        else if (positionChildFromParent(parent) == -1){
+            if (positionChildFromParent(*newNo) == 1){
+                *newNo = parent;
+                L_RotationRBT(root, &(*newNo)->parent, newNo);
+            }
+            parent->color = black;
+            grandpa->color = red;
+            *newNo = grandpa;
+            R_RotationRBT(root, &(*newNo)->parent, newNo);
         }
     }
-
-    if ((*rbt)->color == black){
-        if ((*rbt)->left && (*rbt)->right){
-            if (isRed((*rbt)->left) && isRed((*rbt)->right)){
-                if (isRed((*rbt)->left->left) || isRed((*rbt)->left->right) || isRed((*rbt)->right->left) || isRed((*rbt)->right->right)){
-                    (*rbt)->left->color = black;
-                    (*rbt)->right->color = black;
-                    (*rbt)->color = red;
-                }
-            }
-        }
-        
-        if (isRed((*rbt)->left) && !isRed((*rbt)->right)){
-            if (isRed((*rbt)->left->right))
-                R_RotationRBT(&(*rbt)->left);
-            if (isRed((*rbt)->left->left)){
-                (*root)->left->color = black;
-                (*root)->color = red;
-                L_RotationRBT(rbt);
-                printf("rotation");
-            }
-            // if (!(*rbt)->parent){
-            //     // *root = rbt;
-            //     return;
-            // }
-        }
-    }
-    
+    (*root)->color = black;
 }
 
-void balance2(no **rbt, no **root){
-    if (!(*rbt)) return;
-    printf("\n\nsimmm\n\n");
+no *insertRBT(no **root, void *inf, int infoComp(void *, void *)){
+    no *position = *root;
+    no *positionParent = NULL;
+    no *newNo = createNo(inf);
 
-    if ((*rbt)->parent){
-        if (isleaf(*rbt)){
-            *rbt = (*rbt)->parent;
-            return balance2(rbt, root);
+    while (position)
+    {
+        if (infoComp(inf, position->inf) == 0){
+            free(newNo);
+            return NULL;
         }
-        
-        if ((isleaf((*rbt)->left) || !(*rbt)->left) && (isleaf((*rbt)->right) || !(*rbt)->right)){
-            *rbt = (*rbt)->parent;
-            return balance2(rbt, root);
-        }
+        positionParent = position;
+        if (infoComp(inf, position->inf) == -1)
+            position = position->left;
+        else
+            position = position->right;
     }
 
-    if ((*rbt)->color == black){
-        if ((*rbt)->left && (*rbt)->right){
-            if (isRed((*rbt)->left) && isRed((*rbt)->right)){
-                if (isRed((*rbt)->left->left) || isRed((*rbt)->left->right) || isRed((*rbt)->right->left) || isRed((*rbt)->right->right)){
-                    (*rbt)->left->color = black;
-                    (*rbt)->right->color = black;
-                    (*rbt)->color = red;
-                }
-            }
-        }
-        
-        if (isRed((*rbt)->left) && !isRed((*rbt)->right)){
-            if (isRed((*rbt)->left->right))
-                R_RotationRBT(&(*rbt)->left);
-            if (isRed((*rbt)->left->left)){
-                (*root)->left->color = black;
-                (*root)->color = red;
-                L_RotationRBT(root);
-                printf("rotation");
-            }
-            // if (!(*rbt)->parent){
-            //     root = rbt;
-            //     return;
-            // }
-        }
-    }
-    
+    newNo->parent = positionParent;
+
+    if (!positionParent)
+        *root = newNo;
+    else if (infoComp(inf, positionParent->inf) == -1)
+        positionParent->left = newNo;
+    else
+        positionParent->right = newNo;
+
+    balance(root, &newNo);
+
+    return newNo;
 }
-
-void balance(no **inserted, no **avl){
-
-    if ( !(*inserted) || !(*inserted)->parent) return;
-    if ((*inserted)->parent->color == black) return;
-
-    // Caso 1: tio do novo no eh rubro.
-    if (uncle(*inserted) && uncle(*inserted)->color == red){
-        (*inserted)->parent->color = black;
-        uncle(*inserted)->color = black;
-        (*inserted)->parent->parent->color = red;
-
-        return balance(&(*inserted)->parent->parent, avl);
-    }
-
-    else{
-        if (positionChildFromParent((*inserted)->parent) == 1){
-            switch (positionChildFromParent(*inserted)){
-                case 1:
-                    (*inserted)->parent->color = black;
-                    (*inserted)->parent->parent->color = red;
-                    L_RotationRBT(&(*inserted)->parent->parent);
-                    break;
-                case 0:
-                    break;
-                case -1:
-                    R_RotationRBT(&(*inserted)->parent->parent);
-                    balance(inserted, avl);
-                    break;
-            }
-        }
-        else if (positionChildFromParent((*inserted)->parent) == -1){
-            switch (positionChildFromParent(*inserted)){
-                case 1:
-                     R_RotationRBT(&(*inserted)->parent->parent);
-                     balance(inserted, avl);
-                     break;
-                case 0:
-                    break;
-                case -1:
-                    (*inserted)->parent->color = black;
-                    (*inserted)->parent->parent->color = red;
-                    L_RotationRBT(&(*inserted)->parent->parent);
-                    break;
-            }
-        }
-    }
-}
-
-no *insertRBT(no **rbt, void *inf, int infoComp(void *, void *)){
-    if ( *rbt == NULL ){
-        // printf("aki");
-        // Caso basico em que a rbt eh NULL, portanto rbt recebe um novo no que sera a sua raiz.
-        *rbt = createNo(inf);
-
-        // Insercao bem sucedida, retorna a informacao que foi inserida.
-        return (*rbt);
-    }
-
-    // Se o no ja existe, o mesmo nao sera inserido, unico caso que retorna NULL.
-    if (infoComp(inf, (*rbt)->inf) == 0) return NULL;
-
-    no *inserted = NULL;
-    // Insercao na sub-arvore esquerda.
-    if (infoComp(inf, (*rbt)->inf) == -1){
-        inserted = insertRBT(&(*rbt)->left, inf, infoComp);
-        inserted->parent = searchParent(*rbt, inf, infoComp);
-    }
-
-    // insercao na sub-arvore direita.
-    else if (infoComp(inf, (*rbt)->inf) == 1){
-        inserted = insertRBT(&(*rbt)->right, inf, infoComp);
-        inserted->parent = searchParent(*rbt, inf, infoComp);
-    }
-
-    if ((inserted->parent->parent) == NULL)
-        inserted->parent->color = black;
-
-    for (no *pivo = inserted; pivo; pivo = pivo->parent){
-        balance3(&pivo, rbt);
-    }
-        
-    return inserted;
-}
-
-// // Deleta um elemento na AVL e realiza rotacoes caso necessario.
-// no *deleteNo(no **avl, void *inf, int infoComp(void *, void *) ){
-//     // Caso basico em que a avl eh nula, portanto nao ha elemento para se deletar.
-//     if (!(*avl))
-//         return NULL;
-//     no *deleted = createNo((*avl)->inf);
-//     // Deleta elemento na sub-arvore esquerda.
-//     if (infoComp(inf, (*avl)->inf) == -1)
-//         deleted = deleteNo(&(*avl)->left, inf, infoComp);
-
-//     // Deleta elemento na sub-arvore direita.
-//     else if (infoComp(inf, (*avl)->inf) == 1)
-//         deleted = deleteNo(&(*avl)->right, inf, infoComp);
-
-//     // Caso tenha encontrado o elemento que deve ser deletado.
-//     else{
-//         // Caso o elemento que deve ser deletado tenha algum filho igual a NULL.
-//         if( ((*avl)->left == NULL) || ((*avl)->right == NULL) ){
-//             // temp utilizado para setar o novo valor de avl, apos a delecao.
-//             no *temp;
-//             if((*avl)->left)
-//                 temp = (*avl)->left;
-//             else
-//                 temp = (*avl)->right;
-//             // Caso o elemento seja um no folha.
-//             if (temp == NULL){
-//                 temp = *avl;
-//                 *avl = NULL;
-//             }
-//             else
-//                 **avl = *temp;
-//             free(temp);
-//         }
-//         else{
-//             // O no que deve ser deletado recebe uma sobrescrita de informacao do "temp" = (menor elemento de sua sub-arvore direita).
-//             // Temp pode ser deletado pois sua informacao foi preservada,
-//             // e a informacao do elemento que deveria ser deletado na chamada da funcao principal se perdeu.
-//             no *temp = findSmalLestNo((*avl)->right);
-//             (*avl)->inf = temp->inf;
-//             deleteNo(&(*avl)->right, temp->inf, infoComp);
-//         }
-//     }
-//     // Elemento deletado com sucesso, retorna o no que foi deletado, agora desconectado da AVL.
-//     if ((*avl) == NULL)
-//       return deleted;
-
-//     // Recalculando o fator de balanceamento, apos a delecao.
-//     (*avl)->balance = height((*avl)->left) - height((*avl)->right);
-
-//     int balance = (*avl)->balance;
-
-//     // Realiza as rotacoes necessarias, para rebalancear a AVL.
-//     if (balance > 1 && (*avl)->left->balance >= 0)
-//         LL_RotationRBT(avl);
-
-//     else if (balance > 1 && (*avl)->left->balance < 0)
-//         LR_RotationRBT(&(*avl)->left);
-
-//     else if (balance < -1 && (*avl)->right->balance <= 0)
-//         RR_RotationAVL(avl);
-
-//     else if (balance < -1 && (*avl)->right->balance > 0)
-//         RL_RotationAVL(&(*avl)->right);
-
-//     // Elemento deletado com sucesso, arvore balanceada, retorna o no que foi deletado, agora desconectado da AVL.
-//     return deleted;
-// }
 
 // Imprime a RBT, visualmente rotacionada em um angulo de 90 graus anti-horario.
 void toStringRBT(no *rbt , int level, void *toStringInfoId(void *)){
@@ -429,5 +249,22 @@ void toStringRBT(no *rbt , int level, void *toStringInfoId(void *)){
         printf("\n");
         // Chamada recursiva para imprimir os elementos da sub-arvore a esquerda.
         toStringRBT (rbt->left, level + 1, toStringInfoId) ;
+    }
+}
+
+// Imprime as  cores de cada elemento da RBT, visualmente rotacionada em um angulo de 90 graus anti-horario.
+void toStringColorRBT(no *rbt , int level){
+    int i;
+    if (rbt){
+        // Chamada recursiva para imprimir os elementos da sub-arvore a direita.
+        toStringColorRBT (rbt->right, level + 1) ;
+        // Os elementos sao separados na horizontal por um espaco de tab.
+        for(i = 0; i < level; i++) printf ("\t");
+        // O elemento a ser impresso eh definido pela chave escolida no programa cliente.
+        printf("%d", rbt->color);
+        // Os elementos sao separados na vertical por uma quebra de linha.
+        printf("\n");
+        // Chamada recursiva para imprimir os elementos da sub-arvore a esquerda.
+        toStringColorRBT (rbt->left, level + 1) ;
     }
 }

@@ -69,9 +69,10 @@ int main()
     while( op != 5){
         // Menu para orientar a interacao com o usuario.
         printf("\n1 INSERIR UMA PESSOA\n");
-        printf("\n2 REMOVER UMA PESSOA\n");
-        printf("\n3 PROCURAR UMA PESSOA \n");
-        printf("\n4 IMPRIMIR A ARVORE \n");
+        // printf("\n2 REMOVER UMA PESSOA\n");
+        // printf("\n3 PROCURAR UMA PESSOA \n");
+        printf("\n3 IMPRIMIR A ARVORE POR COR \n");
+        printf("\n4 IMPRIMIR A ARVORE POR ID \n");
         printf("\n5 SAIR\n");
         printf("\nDIGITE UM NUMERO PARA ESCOLHER SUA OPCAO: ");
 
@@ -99,22 +100,22 @@ int main()
                 cleanBuffer();
 
                 inf = createInfo(id, name, age);
-                insertRBT(&rbt, inf, infoComp_ptr);
-                
+                inserted = insertRBT(&rbt, inf, infoComp_ptr);
 
-                // if( inserted == NULL )
-                //     printf("\nErro: id ja existente\n");
-                // else{
-                //     printf("\n");
-                //     toStringInfo(inserted->inf);
-                //     printf("\n");
-                // }
+
+                if( inserted == NULL )
+                    printf("\nErro: id ja existente\n");
+                else{
+                    printf("\n");
+                    toStringInfo(inserted->inf);
+                    printf("\n");
+                }
                 break;
-        case 3: 
-            L_RotationRBT(&rbt);
-            // toStringInfo(searchParent(rbt, inf, infoComp_ptr)->inf);
-            break;
-        // Imprime a arvore completa.s
+
+            case 3:
+                printf("\n");
+                toStringColorRBT(rbt, 0);
+                break;
             case 4:
                 printf("\n");
                 toStringRBT(rbt, 0, toStringInfoid_ptr);
