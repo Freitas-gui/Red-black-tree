@@ -22,13 +22,11 @@ no *createNo(void *inf){
 int positionChildFromParent(no *rbt){
     if (!rbt || !rbt->parent) return NULL;
 
-    if (rbt->parent != NULL){
-        if (rbt == rbt->parent->left)
-            return 1;
-        else return -1;
-    }
-    // Parent is NULL.
-    return 0;
+    if (rbt == rbt->parent->left)
+        return 1;
+    else return -1;
+
+    return NULL;
 }
 
 no *uncle(no *rbt){
@@ -155,49 +153,58 @@ void L_RotationRBT(no **root, no **pivoParent, no **pivo){
 
     (*pivo)->parent->right = (*pivo);
 
-    // A raiz da subárvore passada no parâmetro é atualizada.
     *pivo = (*pivo)->parent;
 
+    // A raiz da subárvore passada no parâmetro é atualizada.
     if (!(*pivo)->parent) 
         *root = *pivo;
 }
 
 void balance(no **root, no **newNo){
-    no *parent, *grandpa, *uncle;
+    no *parent, *grandpa;
 
-    while (isRed((*newNo)->parent))
+    while (isRed(*newNo) && isRed((*newNo)->parent))
     {
         parent = (*newNo)->parent;
         grandpa = parent->parent;
-        if (parent == grandpa->left)
-            uncle = grandpa->right;
-        else
-            uncle = grandpa->left;
-        if (isRed(uncle)){
+        
+        if (isRed(uncle(*newNo))){
             parent->color = black;
-            uncle->color = black;
+            uncle(*newNo)->color = black;
             grandpa->color = red;
             (*newNo) = grandpa;
         }
         else if (positionChildFromParent(parent) == 1){
             if (positionChildFromParent(*newNo) == -1){
+                (*newNo)->color = black;
+                grandpa->color = red;
                 *newNo = parent;
                 R_RotationRBT(root, &(*newNo)->parent, newNo);
+                *newNo = grandpa;
+                L_RotationRBT(root, &(*newNo)->parent, newNo);
             }
-            parent->color = black;
-            grandpa->color = red;
-            *newNo = grandpa;
-            L_RotationRBT(root, &(*newNo)->parent, newNo);
+            else{
+                parent->color = black;
+                grandpa->color = red;
+                *newNo = grandpa;
+                L_RotationRBT(root, &(*newNo)->parent, newNo);
+            }
         }
         else if (positionChildFromParent(parent) == -1){
             if (positionChildFromParent(*newNo) == 1){
+                (*newNo)->color = black;
+                grandpa->color = red;
                 *newNo = parent;
                 L_RotationRBT(root, &(*newNo)->parent, newNo);
+                *newNo = grandpa;
+                R_RotationRBT(root, &(*newNo)->parent, newNo);
             }
-            parent->color = black;
-            grandpa->color = red;
-            *newNo = grandpa;
-            R_RotationRBT(root, &(*newNo)->parent, newNo);
+            else{
+                parent->color = black;
+                grandpa->color = red;
+                *newNo = grandpa;
+                R_RotationRBT(root, &(*newNo)->parent, newNo);
+            }
         }
     }
     (*root)->color = black;

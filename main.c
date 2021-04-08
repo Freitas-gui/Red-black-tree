@@ -70,6 +70,7 @@ int main()
         // Menu para orientar a interacao com o usuario.
         printf("\n1 INSERIR UMA PESSOA\n");
         // printf("\n2 REMOVER UMA PESSOA\n");
+        printf("\n2 INSERIR ALEATORIAMENTE VARIAS PESSOAS\n");
         // printf("\n3 PROCURAR UMA PESSOA \n");
         printf("\n3 IMPRIMIR A ARVORE POR COR \n");
         printf("\n4 IMPRIMIR A ARVORE POR ID \n");
@@ -87,7 +88,7 @@ int main()
 
             // Insere um elemento na arvore.
             case 1:
-                 printf("Digite um numero inteiro para representar o id da pessoa a ser cadastrada: ");
+                printf("Digite um numero inteiro para representar o id da pessoa a ser cadastrada: ");
                 scanf("%d", &id);
                 cleanBuffer();
 
@@ -112,6 +113,15 @@ int main()
                 }
                 break;
 
+            case 2:
+                srand(time(NULL));
+                int range = 0;
+                printf("Digite a quantidade de elementos aleatorios que deseja inserir: ");
+                scanf("%d", &range);
+                for(int index = 0; index < range; index ++){
+                    inf = createInfo(rand() % 1000, "Aleatorio", "0");
+                    inserted = insertRBT(&rbt, inf, infoComp_ptr);
+                }
             case 3:
                 printf("\n");
                 toStringColorRBT(rbt, 0);
