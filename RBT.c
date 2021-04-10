@@ -42,6 +42,19 @@ no *uncle(no *rbt){
     }
 }
 
+no *sibling(no *rbt){
+    if (!rbt || !rbt->parent) return NULL;
+
+    switch (positionChildFromParent(rbt)){
+        case 1:
+            return rbt->parent->right;
+        case 0:
+            return NULL;
+        case -1:
+            return rbt->parent->left;
+    }
+}
+
 int isleaf(no *rbt){
     if (!rbt) return 0;
     if ( (!(rbt)->left) && (!(rbt)->right) )
@@ -142,7 +155,6 @@ void L_RotationRBT(no **root, no **pivoParent, no **pivo){
     }
     (*pivo)->left->parent = (*pivo)->parent;
 
-
     if ((*pivo)->left->right)
         (*pivo)->left->right->parent = (*pivo);
 
@@ -158,6 +170,75 @@ void L_RotationRBT(no **root, no **pivoParent, no **pivo){
     // A raiz da subárvore passada no parâmetro é atualizada.
     if (!(*pivo)->parent) 
         *root = *pivo;
+}
+
+void transferParent(no **root, no **parent, no **rbt, no **target){
+    if ( !(*rbt) || (*rbt)->parent != (*parent) )
+        return;
+    if (!(*parent))
+        *root = *target;
+    else if (positionChildFromParent(*rbt) == 1)
+        (*parent)->left = *target;
+    else if (positionChildFromParent(*rbt) == -1)
+        (*parent)->right = *target;
+    if (*target)
+        (*target)->parent = *parent;
+}
+
+// Retorna o no considerado o menor elemento na AVL.
+no *findSmalLestNo(no *avl){
+    if(!avl) return NULL;
+    if(!(leftAVL(avl)))
+        return avl;
+    else
+        return findSmalLestNo(leftAVL(avl));
+}
+
+no *deleteRBT(no **root, no **delete, int infoComp(void *, void *)){
+    if (!(*root) || !(*delete)) return NULL;
+    no *deleted, *successor;
+    deleted = *delete;
+    colorBR color = (*delete)->color;
+
+    // Caso o no a ser deletado tenha algum filho = NULL.
+    if (!(*delete)->right || !(*delete)->left){
+        if ((*delete)->right){
+            successor = (*delete)->right;
+            transferParent(root, &(*delete)->parent, delete, &successor);
+        }
+        else if ((*delete)->left)
+            successor = (*delete)->left;
+            transferParent(root, &(*delete)->parent, delete, &successor);
+    }
+
+    // Caso em que o menor elemento a direita de (*delete) eh o (*delete)->right.
+    else if (!(*delete)->right->left){
+        successor = (*delete)->right;
+        color = successor->color;
+        successor->left = (*delete)->left;
+        (*delete)->left->parent = successor->left;
+        transferParent(root, &(*delete)->parent, delete, &successor);
+    }
+
+    // Caso (*delete)->right tenha filho a esquerda.
+    else{
+        successor = findSmalLestNo((*delete)->right);
+        color = successor->color;
+        
+        successor->parent->left = successor->right;
+        successor->right->parent = successor->parent->left;
+        successor->right = successor->parent;
+        successor->parent->parent = successor;
+
+        successor->left = (*delete)->left;
+        (*delete)->left->parent = successor;
+
+        transferParent(root, &(*delete)->parent, delete, &successor);
+    }
+
+    if (color == black)
+        balanceDelete(no **root, &successor);
+    
 }
 
 void balance(no **root, no **newNo){
