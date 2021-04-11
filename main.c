@@ -91,36 +91,42 @@ int main()
                 scanf("%d", &id);
                 cleanBuffer();
 
-                inf = createInfo(9, name, age);
-                rbt = createNo(inf);
+                // inf = createInfo(9, name, age);
+                // rbt = createNo(inf);
 
-                inf = createInfo(8, name, age);
-                inserted = createNo(inf);
-                rbt->left = inserted;
-                inserted->parent = rbt;
+                // inf = createInfo(8, name, age);
+                // inserted = createNo(inf);
+                // rbt->left = inserted;
+                // inserted->parent = rbt;
 
-                inf = createInfo(7, name, age);
-                deleted = createNo(inf);
-                inserted->left = deleted;
-                deleted->parent = inserted;
+                // inf = createInfo(7, name, age);
+                // deleted = createNo(inf);
+                // inserted->left = deleted;
+                // deleted->parent = inserted;
 
-                inf = createInfo(6, name, age);
-                inserted = createNo(inf);
-                deleted->left = inserted;
-                inserted->parent = deleted;
+                // inf = createInfo(6, name, age);
+                // inserted = createNo(inf);
+                // deleted->left = inserted;
+                // inserted->parent = deleted;
 
-                inf = createInfo(5, name, age);
-                deleted = createNo(inf);
-                inserted->left = deleted;
-                deleted->parent = inserted;
+                // inf = createInfo(5, name, age);
+                // deleted = createNo(inf);
+                // inserted->left = deleted;
+                // deleted->parent = inserted;
 
                 inf = createInfo(id, "name", 0);
                 searched = search(rbt, inf, infoComp_ptr);
+                // printf("\n");
+                // toStringInfo(searched->inf);
+                // printf("\n");
+                if (!searched) break;
+                    deleted = deleteRBT(&rbt, &searched, infoComp_ptr);
+
                 printf("\n");
                 toStringInfo(searched->inf);
                 printf("\n");
                 
-                callBackRevert(&searched);
+                // callBackRevert(&searched);
 
                 break;
 
