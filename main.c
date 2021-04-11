@@ -84,7 +84,45 @@ int main()
             char name[30];
             int age, id;
             info *inf;
-            no *deleted, *inserted;
+            no *deleted, *inserted, *searched;
+
+            case 0:
+                printf("Digite um numero inteiro para representar o id da pessoa a ser buscada: ");
+                scanf("%d", &id);
+                cleanBuffer();
+
+                inf = createInfo(9, name, age);
+                rbt = createNo(inf);
+
+                inf = createInfo(8, name, age);
+                inserted = createNo(inf);
+                rbt->left = inserted;
+                inserted->parent = rbt;
+
+                inf = createInfo(7, name, age);
+                deleted = createNo(inf);
+                inserted->left = deleted;
+                deleted->parent = inserted;
+
+                inf = createInfo(6, name, age);
+                inserted = createNo(inf);
+                deleted->left = inserted;
+                inserted->parent = deleted;
+
+                inf = createInfo(5, name, age);
+                deleted = createNo(inf);
+                inserted->left = deleted;
+                deleted->parent = inserted;
+
+                inf = createInfo(id, "name", 0);
+                searched = search(rbt, inf, infoComp_ptr);
+                printf("\n");
+                toStringInfo(searched->inf);
+                printf("\n");
+                
+                callBackRevert(&searched);
+
+                break;
 
             // Insere um elemento na arvore.
             case 1:
@@ -119,7 +157,7 @@ int main()
                 printf("Digite a quantidade de elementos aleatorios que deseja inserir: ");
                 scanf("%d", &range);
                 for(int index = 0; index < range; index ++){
-                    inf = createInfo(rand() % 1000, "Aleatorio", "0");
+                    inf = createInfo(rand() % 1000, "Aleatorio", 0);
                     inserted = insertRBT(&rbt, inf, infoComp_ptr);
                 }
             case 3:

@@ -114,15 +114,16 @@ no *searchParent(no *rbt , void *inf, int infoComp(void *, void *)){
 
 // Insercao na sub-arvore direita.
 // Rotacao a esquerda.
-void R_RotationRBT(no **root, no **pivoParent ,no **pivo){
+void R_RotationRBT(no **root ,no **pivo){
     if (!(*pivo)) return;
-
+    
+    no *pivoParent = (*pivo)->parent;
     // Redefinicoes de referencias.
-    if (*pivoParent != NULL){
+    if (pivoParent != NULL){
         if (positionChildFromParent(*pivo) == 1)
-            (*pivoParent)->left = (*pivo)->right;
+            pivoParent->left = (*pivo)->right;
         else
-            (*pivoParent)->right = (*pivo)->right;
+            pivoParent->right = (*pivo)->right;
     }
     (*pivo)->right->parent = (*pivo)->parent;
 
@@ -143,15 +144,16 @@ void R_RotationRBT(no **root, no **pivoParent ,no **pivo){
 
 // Insercao na sub-arvore esquerda.
 // Rotacao a direita.
-void L_RotationRBT(no **root, no **pivoParent, no **pivo){
+void L_RotationRBT(no **root, no **pivo){
     if (!(*pivo)) return;
+    no *pivoParent = (*pivo)->parent;
 
     // Redefinicoes de referencias.
-    if (*pivoParent != NULL){
+    if (pivoParent != NULL){
         if (positionChildFromParent(*pivo) == 1)
-            (*pivoParent)->left = (*pivo)->left;
+            pivoParent->left = (*pivo)->left;
         else
-            (*pivoParent)->right = (*pivo)->left;
+            pivoParent->right = (*pivo)->left;
     }
     (*pivo)->left->parent = (*pivo)->parent;
 
@@ -188,10 +190,10 @@ void transferParent(no **root, no **parent, no **rbt, no **target){
 // Retorna o no considerado o menor elemento na AVL.
 no *findSmalLestNo(no *avl){
     if(!avl) return NULL;
-    if(!(leftAVL(avl)))
+    if(!(avl->left))
         return avl;
     else
-        return findSmalLestNo(leftAVL(avl));
+        return findSmalLestNo(avl->left);
 }
 
 no *deleteRBT(no **root, no **delete, int infoComp(void *, void *)){
@@ -224,7 +226,7 @@ no *deleteRBT(no **root, no **delete, int infoComp(void *, void *)){
     else{
         successor = findSmalLestNo((*delete)->right);
         color = successor->color;
-        
+
         successor->parent->left = successor->right;
         successor->right->parent = successor->parent->left;
         successor->right = successor->parent;
@@ -236,9 +238,37 @@ no *deleteRBT(no **root, no **delete, int infoComp(void *, void *)){
         transferParent(root, &(*delete)->parent, delete, &successor);
     }
 
-    if (color == black)
-        balanceDelete(no **root, &successor);
+    // if (color == black)
+    //     balanceDelete(no **root, &successor);
     
+}
+
+void reverteChildParent(no **rbt){
+    if (!(*rbt) || !(*rbt)->parent) return;
+
+    no *parent, *child, *grandpa;
+    parent = (*rbt)->parent;
+    child = (*rbt)->left;
+    grandpa = parent->parent;
+    
+    grandpa->left = child;
+    child->parent = grandpa;
+
+    parent->left = child->left;
+    child->left = (*rbt);
+    (*rbt)->parent = child;
+
+    (*rbt)->left = parent;
+    parent->parent = (*rbt);
+    
+    
+    *rbt = child;
+    printf("aki");
+}
+
+void callBackRevert(no **rbt){
+    no *parent = (*rbt)->parent->parent;
+    reverteChildParent(&parent);
 }
 
 void balance(no **root, no **newNo){
@@ -260,15 +290,15 @@ void balance(no **root, no **newNo){
                 (*newNo)->color = black;
                 grandpa->color = red;
                 *newNo = parent;
-                R_RotationRBT(root, &(*newNo)->parent, newNo);
+                R_RotationRBT(root, newNo);
                 *newNo = grandpa;
-                L_RotationRBT(root, &(*newNo)->parent, newNo);
+                L_RotationRBT(root, newNo);
             }
             else{
                 parent->color = black;
                 grandpa->color = red;
                 *newNo = grandpa;
-                L_RotationRBT(root, &(*newNo)->parent, newNo);
+                L_RotationRBT(root, newNo);
             }
         }
         else if (positionChildFromParent(parent) == -1){
@@ -276,15 +306,15 @@ void balance(no **root, no **newNo){
                 (*newNo)->color = black;
                 grandpa->color = red;
                 *newNo = parent;
-                L_RotationRBT(root, &(*newNo)->parent, newNo);
+                L_RotationRBT(root, newNo);
                 *newNo = grandpa;
-                R_RotationRBT(root, &(*newNo)->parent, newNo);
+                R_RotationRBT(root, newNo);
             }
             else{
                 parent->color = black;
                 grandpa->color = red;
                 *newNo = grandpa;
-                R_RotationRBT(root, &(*newNo)->parent, newNo);
+                R_RotationRBT(root, newNo);
             }
         }
     }
