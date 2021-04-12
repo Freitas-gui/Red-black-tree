@@ -287,51 +287,44 @@ void balanceDelete(no **root, no **rbt){
 
 no *deleteRBT(no **root, no **delete, int infoComp(void *, void *)){
     if (!(*root) || !(*delete)) return NULL;
-    no *deleted, *successor;
+    no *deleted, *successor, *auxSuccessor, *successorRight;
     deleted = *delete;
+    successor = deleted;
     colorBR color = (*delete)->color;
 
     // Caso o no a ser deletado tenha algum filho = NULL.
     if (!(*delete)->left){
-        successor = (*delete)->right;
-        transferParent(root, delete, &successor);
+        auxSuccessor = (*delete)->right;
+        transferParent(root, delete, &auxSuccessor);
     }
-    else if (!(*delete)->right){
-        successor = (*delete)->left;
-        transferParent(root, delete, &successor);
-    }
-
-    // Caso em que o menor elemento a direita de (*delete) eh o (*delete)->right.
-    else if (!(*delete)->right->left){
-        successor = (*delete)->right;
-        color = successor->color;
-        successor->color = (*delete)->color;
-        successor->left = (*delete)->left;
-        (*delete)->left->parent = successor;
-        transferParent(root, delete, &successor);
-    }
-
-    // Caso (*delete)->right tenha filho a esquerda.
-    else{
-        
-        successor = findSmalLestNo((*delete)->right);
-
-        color = successor->color;
-        successor->color = (*delete)->color;
-
-        successor->parent->left = successor->right;
-        if (successor->right)
-            successor->right->parent = successor->parent;
-        successor->right = successor->parent;
-        successor->parent->parent = successor;
-
-        successor->left = (*delete)->left;
-        (*delete)->left->parent = successor;
-
-        transferParent(root, delete, &successor);
+    else {
+        if (!(*delete)->right){
+            auxSuccessor = (*delete)->left;
+            transferParent(root, delete, &auxSuccessor);
+        }
+         else{
+            successor = (*delete)->right;
+            color = successor->color;
+            auxSuccessor = successor->right;
+            if (successor->parent == (*delete)){
+                if (auxSuccessor)
+                    auxSuccessor->parent = successor;
+            }
+            else{
+                successorRight = successor->right;
+                transferParent(root, &successor, &successorRight);
+                successorRight = (*delete)->right;
+                successorRight->parent = successor;
+            }
+                transferParent(root, delete, &successor);
+                successor->left = (*delete)->left;
+                if (successor->left)
+                    successor->left->parent = successor;
+                successor->color = (*delete)->color;
+        }
     }
     if (color == black)
-        balanceDelete(root, &successor);
+        balanceDelete(root, &auxSuccessor);
     return deleted;
 }
 
