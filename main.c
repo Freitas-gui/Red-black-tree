@@ -123,7 +123,7 @@ int main()
                     deleted = deleteRBT(&rbt, &searched, infoComp_ptr);
 
                 printf("\n");
-                toStringInfo(searched->inf);
+                toStringInfo(deleted->inf);
                 printf("\n");
                 
                 // callBackRevert(&searched);
