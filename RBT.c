@@ -1,4 +1,5 @@
 // Guilherme Freitas da Silva
+// Gustavo Henrique Vago Brunetti
 
 #include "RBT.h"
 
@@ -203,23 +204,35 @@ void balanceDelete(no **root, no **rbt){
 
     while (newRbt != (*root) && !isRed(newRbt))
     {
-        siblingRbt = sibling(newRbt);
-        parentRbt = newRbt->parent;
-
         if (positionChildFromParent(newRbt) == 1){
+            siblingRbt = sibling(newRbt);
+            if (newRbt)
+                parentRbt = newRbt->parent;
+            else
+                parentRbt = NULL;
+
             printf("\n\nLeft\n\n");
             if (isRed(siblingRbt)){
                 if (siblingRbt)
                     siblingRbt->color = black;
-                parentRbt->color = red;
+                if (parentRbt)
+                    parentRbt->color = red;
                 R_RotationRBT(root, &parentRbt);
                 siblingRbt = sibling(newRbt);
-                parentRbt = newRbt->parent;
+                if (newRbt)
+                    parentRbt = newRbt->parent;
+                else
+                    parentRbt = NULL;
             }
 
             if (siblingRbt && (!isRed(siblingRbt->left)) && !isRed(siblingRbt->right)){
                 siblingRbt->color = red;
                 newRbt = parentRbt;
+                if (newRbt)
+                    parentRbt = newRbt->parent;
+                else
+                    parentRbt = NULL;
+                siblingRbt = sibling(newRbt);
             }
 
             else{
@@ -229,35 +242,52 @@ void balanceDelete(no **root, no **rbt){
                     siblingRbt->color = red;
                     L_RotationRBT(root, &siblingRbt);
                     siblingRbt = sibling(newRbt);
+                    if (newRbt)
+                        parentRbt = newRbt->parent;
+                    else
+                        parentRbt = NULL;
                 }
-                if (newRbt)
-                    parentRbt = newRbt->parent;
                 if (siblingRbt && parentRbt)
                     siblingRbt->color = parentRbt->color;
+                else if (siblingRbt)
+                    siblingRbt->color = black;
                 if (parentRbt)
                     parentRbt->color = black;
                 if (siblingRbt && siblingRbt->right)
                     siblingRbt->right->color = black;
+
                 R_RotationRBT(root, &parentRbt);
                 newRbt = (*root);
             }
         }
 
         else if (positionChildFromParent(newRbt) == -1){
-            printf("\n\nRight\n\n");
+            siblingRbt = sibling(newRbt);
+            if (newRbt)
+                parentRbt = newRbt->parent;
 
+            printf("\n\nRight\n\n");
             if (isRed(siblingRbt)){
                 if (siblingRbt)
                     siblingRbt->color = black;
-                parentRbt->color = red;
+                if (parentRbt)
+                    parentRbt->color = red;
                 L_RotationRBT(root, &parentRbt);
                 siblingRbt = sibling(newRbt);
-                parentRbt = newRbt->parent;
+                if (newRbt)
+                    parentRbt = newRbt->parent;
+                else
+                    parentRbt = NULL;
             }
 
             if (siblingRbt && (!isRed(siblingRbt->left)) && !isRed(siblingRbt->right)){
                 siblingRbt->color = red;
                 newRbt = parentRbt;
+                if (newRbt)
+                    parentRbt = newRbt->parent;
+                else
+                    parentRbt = NULL;
+                siblingRbt = sibling(newRbt);
             }
 
             else{
@@ -267,32 +297,37 @@ void balanceDelete(no **root, no **rbt){
                     siblingRbt->color = red;
                     R_RotationRBT(root, &siblingRbt);
                     siblingRbt = sibling(newRbt);
+                    if (newRbt)
+                        parentRbt = newRbt->parent;
                 }
-                if (newRbt)
-                    parentRbt = newRbt->parent;
                 if (siblingRbt && parentRbt)
                     siblingRbt->color = parentRbt->color;
+                else if (siblingRbt)
+                    siblingRbt->color = black;
                 if (parentRbt)
                     parentRbt->color = black;
-                if (siblingRbt && siblingRbt->left)
-                    siblingRbt->left->color = black;
+                if (siblingRbt && siblingRbt->right)
+                    siblingRbt->right->color = black;
+
                 L_RotationRBT(root, &parentRbt);
                 newRbt = (*root);
             }
         }
     }
-    newRbt->color = black;
-    
+    if (newRbt)
+        newRbt->color = black;
 }
 
-no *deleteRBT(no **root, no **delete, int infoComp(void *, void *)){
+no *deleteRBT(no **root, no **delete){
     if (!(*root) || !(*delete)) return NULL;
     no *deleted, *successor, *auxSuccessor, *successorRight;
+    successorRight = NULL;
+    auxSuccessor = NULL;
     deleted = *delete;
-    successor = deleted;
-    colorBR color = (*delete)->color;
+    successor = *delete;
+    colorBR color = successor->color;
 
-    // Caso o no a ser deletado tenha algum filho = NULL.
+    // Caso o no a ser deletado tenha algum filho == NULL.
     if (!(*delete)->left){
         auxSuccessor = (*delete)->right;
         transferParent(root, delete, &auxSuccessor);
@@ -303,28 +338,44 @@ no *deleteRBT(no **root, no **delete, int infoComp(void *, void *)){
             transferParent(root, delete, &auxSuccessor);
         }
          else{
-            successor = (*delete)->right;
-            color = successor->color;
-            auxSuccessor = successor->right;
-            if (successor->parent == (*delete)){
+            successor = findSmalLestNo((*delete)->right);
+            if (successor){
+                color = successor->color;
+                auxSuccessor = successor->right;
+            }         
+            else
+                color = black;
+            if (successor && successor->parent == (*delete)){
                 if (auxSuccessor)
                     auxSuccessor->parent = successor;
             }
+            
             else{
-                successorRight = successor->right;
+                if (successor)
+                    successorRight = successor->right;
                 transferParent(root, &successor, &successorRight);
-                successorRight = (*delete)->right;
-                successorRight->parent = successor;
+                if (successor)
+                    successor->right = (*delete)->right;
+                if (successor->right)
+                    successor->right->parent = successor;
             }
-                transferParent(root, delete, &successor);
+            transferParent(root, delete, &successor);
+            if (successor){
                 successor->left = (*delete)->left;
                 if (successor->left)
                     successor->left->parent = successor;
-                successor->color = (*delete)->color;
+                if (successor)
+                    successor->color = (*delete)->color;
+            }
         }
     }
-    if (color == black)
-        balanceDelete(root, &auxSuccessor);
+    if (color == black){
+        if (auxSuccessor)
+            balanceDelete(root, &auxSuccessor);
+        if (successor)
+            balanceDelete(root, &successor);
+
+    }
     return deleted;
 }
 

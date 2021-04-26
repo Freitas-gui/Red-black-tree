@@ -62,10 +62,12 @@ void cleanBuffer(){
 
 int main()
 {
+    no *EXTERNAL = createNoExternal();
     int op;
     // Estrutura utilizada para inserir, deletar e mostrar dados de pessoas.
+    info * information = createInfo(2,"fdsf",3);
 	no *rbt = NULL;
-
+    
     while( op != 5){
         // Menu para orientar a interacao com o usuario.
         printf("\n1 INSERIR UMA PESSOA\n");
@@ -120,12 +122,13 @@ int main()
                 // toStringInfo(searched->inf);
                 // printf("\n");
                 if (!searched) break;
-                    deleted = deleteRBT(&rbt, &searched, infoComp_ptr);
+                    deleted = deleteRBT(&rbt, &searched);
 
                 printf("\n");
-                toStringInfo(deleted->inf);
+                if (deleted)
+                    toStringInfo(deleted->inf);
                 printf("\n");
-                
+
                 // callBackRevert(&searched);
 
                 break;
