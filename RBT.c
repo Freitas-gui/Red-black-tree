@@ -3,7 +3,25 @@
 
 #include "RBT.h"
 
+no* EXTERNAL = NULL;
+
 // Cria um elemento da RBT.
+no *createNoExternal(){
+    // Aloca espaco de memoria.
+    no *newNo = (no*)malloc(sizeof(no));
+    if(!newNo)
+        return NULL;
+    else{
+        // Se tiver conseguido alocar, entao seta os valores do no.
+        newNo->inf = NULL;
+        newNo->left = NULL;
+        newNo->right = NULL;
+        newNo->parent = NULL;
+        newNo->color = black;
+    }
+    return newNo;
+}
+
 no *createNo(void *inf){
     // Aloca espaco de memoria.
     no *newNo = (no*)malloc(sizeof(no));
@@ -12,16 +30,16 @@ no *createNo(void *inf){
     else{
         // Se tiver conseguido alocar, entao seta os valores do no.
         newNo->inf = inf;
-        newNo->left = NULL;
-        newNo->right = NULL;
-        newNo->parent = NULL;
+        newNo->left = EXTERNAL;
+        newNo->right = EXTERNAL;
+        newNo->parent = EXTERNAL;
         newNo->color = red;
     }
     return newNo;
 }
 
 int positionChildFromParent(no *rbt){
-    if (!rbt || !rbt->parent) return NULL;
+    if (!rbt || !rbt->parent || rbt == EXTERNAL) return NULL;
 
     if (rbt == rbt->parent->left)
         return 1;
@@ -71,7 +89,7 @@ int isRed(no *rbt){
 
 // Procura um elemento na RBT que tenha a mesma informacao fornecida no parametro 'inf'.
 no *search(no *rbt , void *inf, int infoComp(void *, void *)){
-    if(!rbt)
+    if(!rbt || rbt == EXTERNAL)
         return NULL;
     // Caso as informacoes sejam equivalentes, esse sera o elemento retornado.
     else if(infoComp(rbt->inf, inf) == 0)
@@ -116,11 +134,11 @@ no *searchParent(no *rbt , void *inf, int infoComp(void *, void *)){
 // Insercao na sub-arvore direita.
 // Rotacao a esquerda.
 void R_RotationRBT(no **root ,no **pivo){
-    if (!(*pivo)) return;
+    if (!(*pivo) || *pivo == EXTERNAL) return;
     
     no *pivoParent = (*pivo)->parent;
     // Redefinicoes de referencias.
-    if (pivoParent != NULL){
+    if (pivoParent != NULL && pivoParent != EXTERNAL){
         if (positionChildFromParent(*pivo) == 1)
             pivoParent->left = (*pivo)->right;
         else
@@ -146,11 +164,11 @@ void R_RotationRBT(no **root ,no **pivo){
 // Insercao na sub-arvore esquerda.
 // Rotacao a direita.
 void L_RotationRBT(no **root, no **pivo){
-    if (!(*pivo)) return;
+    if (!(*pivo) || *pivo == EXTERNAL) return;
     no *pivoParent = (*pivo)->parent;
 
     // Redefinicoes de referencias.
-    if (pivoParent != NULL){
+    if (pivoParent != NULL && pivoParent != EXTERNAL){
         if (positionChildFromParent(*pivo) == 1)
             pivoParent->left = (*pivo)->left;
         else
@@ -176,10 +194,8 @@ void L_RotationRBT(no **root, no **pivo){
 }
 
 void transferParent(no **root, no **rbt, no **target){
-    if (!(*rbt)) return;
-
     no *parent = (*rbt)->parent;
-    if (!parent)
+    if (parent == EXTERNAL)
         *root = *target;
     else if (positionChildFromParent(*rbt) == 1)
         parent->left = *target;
@@ -191,149 +207,114 @@ void transferParent(no **root, no **rbt, no **target){
 
 // Retorna o no considerado o menor elemento na AVL.
 no *findSmalLestNo(no *avl){
-    if(!avl) return NULL;
-    if(!(avl->left))
+    if(!avl || avl == EXTERNAL) return EXTERNAL;
+    if(!(avl->left) || avl->left == EXTERNAL)
         return avl;
     else
         return findSmalLestNo(avl->left);
 }
 
 void balanceDelete(no **root, no **rbt){
-    if (!(*root) || !(*rbt)) return;
+    if (!(*root)) return;
     no *newRbt = *rbt, *siblingRbt, *parentRbt;
 
-    while (newRbt != (*root) && !isRed(newRbt))
+    while (newRbt != (*root) && newRbt->color == black)
     {
-        if (positionChildFromParent(newRbt) == 1){
+        if (newRbt == newRbt->parent->left){
             siblingRbt = sibling(newRbt);
-            if (newRbt)
                 parentRbt = newRbt->parent;
-            else
-                parentRbt = NULL;
 
             printf("\n\nLeft\n\n");
             if (isRed(siblingRbt)){
-                if (siblingRbt)
                     siblingRbt->color = black;
-                if (parentRbt)
                     parentRbt->color = red;
                 R_RotationRBT(root, &parentRbt);
                 siblingRbt = sibling(newRbt);
-                if (newRbt)
                     parentRbt = newRbt->parent;
-                else
-                    parentRbt = NULL;
             }
 
             if (siblingRbt && (!isRed(siblingRbt->left)) && !isRed(siblingRbt->right)){
                 siblingRbt->color = red;
                 newRbt = parentRbt;
-                if (newRbt)
-                    parentRbt = newRbt->parent;
-                else
-                    parentRbt = NULL;
+                parentRbt = newRbt->parent;
                 siblingRbt = sibling(newRbt);
             }
 
             else{
                  if (siblingRbt && !isRed(siblingRbt->right)){
-                    if (siblingRbt->left)
-                        siblingRbt->left->color = black;
+                    siblingRbt->left->color = black;
                     siblingRbt->color = red;
                     L_RotationRBT(root, &siblingRbt);
                     siblingRbt = sibling(newRbt);
-                    if (newRbt)
-                        parentRbt = newRbt->parent;
-                    else
-                        parentRbt = NULL;
+                    parentRbt = newRbt->parent;
+                    parentRbt = EXTERNAL;
                 }
-                if (siblingRbt && parentRbt)
-                    siblingRbt->color = parentRbt->color;
-                else if (siblingRbt)
-                    siblingRbt->color = black;
-                if (parentRbt)
-                    parentRbt->color = black;
-                if (siblingRbt && siblingRbt->right)
-                    siblingRbt->right->color = black;
+                siblingRbt->color = parentRbt->color;
+                parentRbt->color = black;
+                siblingRbt->right->color = black;
 
                 R_RotationRBT(root, &parentRbt);
                 newRbt = (*root);
             }
         }
 
-        else if (positionChildFromParent(newRbt) == -1){
+        else if (newRbt != (*root) && newRbt->color == black){
             siblingRbt = sibling(newRbt);
-            if (newRbt)
-                parentRbt = newRbt->parent;
+            parentRbt = newRbt->parent;
 
             printf("\n\nRight\n\n");
             if (isRed(siblingRbt)){
-                if (siblingRbt)
-                    siblingRbt->color = black;
-                if (parentRbt)
-                    parentRbt->color = red;
+                siblingRbt->color = black;
+                parentRbt->color = red;
                 L_RotationRBT(root, &parentRbt);
                 siblingRbt = sibling(newRbt);
-                if (newRbt)
-                    parentRbt = newRbt->parent;
-                else
-                    parentRbt = NULL;
+                parentRbt = newRbt->parent;
             }
 
             if (siblingRbt && (!isRed(siblingRbt->left)) && !isRed(siblingRbt->right)){
                 siblingRbt->color = red;
                 newRbt = parentRbt;
-                if (newRbt)
-                    parentRbt = newRbt->parent;
-                else
-                    parentRbt = NULL;
+                parentRbt = newRbt->parent;
+                parentRbt = EXTERNAL;
                 siblingRbt = sibling(newRbt);
             }
 
             else{
                  if (siblingRbt && !isRed(siblingRbt->left)){
-                    if (siblingRbt->right)
-                        siblingRbt->right->color = black;
+                    siblingRbt->right->color = black;
                     siblingRbt->color = red;
                     R_RotationRBT(root, &siblingRbt);
                     siblingRbt = sibling(newRbt);
-                    if (newRbt)
-                        parentRbt = newRbt->parent;
+                    parentRbt = newRbt->parent;
                 }
-                if (siblingRbt && parentRbt)
-                    siblingRbt->color = parentRbt->color;
-                else if (siblingRbt)
-                    siblingRbt->color = black;
-                if (parentRbt)
-                    parentRbt->color = black;
-                if (siblingRbt && siblingRbt->right)
-                    siblingRbt->right->color = black;
+                siblingRbt->color = parentRbt->color;
+                parentRbt->color = black;
+                siblingRbt->right->color = black;
 
                 L_RotationRBT(root, &parentRbt);
                 newRbt = (*root);
             }
         }
     }
-    if (newRbt)
-        newRbt->color = black;
+    newRbt->color = black;
 }
 
 no *deleteRBT(no **root, no **delete){
-    if (!(*root) || !(*delete)) return NULL;
+    if (!(*root) || !(*delete) || ((*delete) == EXTERNAL)) return NULL;
     no *deleted, *successor, *auxSuccessor, *successorRight;
-    successorRight = NULL;
-    auxSuccessor = NULL;
+    successorRight = EXTERNAL;
+    auxSuccessor = EXTERNAL;
     deleted = *delete;
     successor = *delete;
     colorBR color = successor->color;
 
     // Caso o no a ser deletado tenha algum filho == NULL.
-    if (!(*delete)->left){
+    if ((*delete)->left == EXTERNAL){
         auxSuccessor = (*delete)->right;
         transferParent(root, delete, &auxSuccessor);
     }
     else {
-        if (!(*delete)->right){
+        if ((*delete)->right == EXTERNAL){
             auxSuccessor = (*delete)->left;
             transferParent(root, delete, &auxSuccessor);
         }
@@ -342,7 +323,7 @@ no *deleteRBT(no **root, no **delete){
             if (successor){
                 color = successor->color;
                 auxSuccessor = successor->right;
-            }         
+            }
             else
                 color = black;
             if (successor && successor->parent == (*delete)){
@@ -372,40 +353,10 @@ no *deleteRBT(no **root, no **delete){
     if (color == black){
         if (auxSuccessor)
             balanceDelete(root, &auxSuccessor);
-        if (successor)
-            balanceDelete(root, &successor);
-
     }
     return deleted;
 }
 
-void reverteChildParent(no **rbt){
-    if (!(*rbt) || !(*rbt)->parent) return;
-
-    no *parent, *child, *grandpa;
-    parent = (*rbt)->parent;
-    child = (*rbt)->left;
-    grandpa = parent->parent;
-    
-    grandpa->left = child;
-    child->parent = grandpa;
-
-    parent->left = child->left;
-    child->left = (*rbt);
-    (*rbt)->parent = child;
-
-    (*rbt)->left = parent;
-    parent->parent = (*rbt);
-    
-    
-    *rbt = child;
-    printf("aki");
-}
-
-void callBackRevert(no **rbt){
-    no *parent = (*rbt)->parent->parent;
-    reverteChildParent(&parent);
-}
 
 void balance(no **root, no **newNo){
     no *parent, *grandpa;
@@ -462,7 +413,7 @@ no *insertRBT(no **root, void *inf, int infoComp(void *, void *)){
     no *positionParent = NULL;
     no *newNo = createNo(inf);
 
-    while (position)
+    while (position && position != EXTERNAL)
     {
         if (infoComp(inf, position->inf) == 0){
             free(newNo);
@@ -492,7 +443,7 @@ no *insertRBT(no **root, void *inf, int infoComp(void *, void *)){
 // Imprime a RBT, visualmente rotacionada em um angulo de 90 graus anti-horario.
 void toStringRBT(no *rbt , int level, void *toStringInfoId(void *)){
     int i;
-    if (rbt){
+    if (rbt && rbt != EXTERNAL){
         // Chamada recursiva para imprimir os elementos da sub-arvore a direita.
         toStringRBT (rbt->right, level + 1, toStringInfoId) ;
         // Os elementos sao separados na horizontal por um espaco de tab.
@@ -509,7 +460,7 @@ void toStringRBT(no *rbt , int level, void *toStringInfoId(void *)){
 // Imprime as  cores de cada elemento da RBT, visualmente rotacionada em um angulo de 90 graus anti-horario.
 void toStringColorRBT(no *rbt , int level){
     int i;
-    if (rbt){
+    if (rbt && rbt != EXTERNAL){
         // Chamada recursiva para imprimir os elementos da sub-arvore a direita.
         toStringColorRBT (rbt->right, level + 1) ;
         // Os elementos sao separados na horizontal por um espaco de tab.
