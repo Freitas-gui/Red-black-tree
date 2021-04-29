@@ -20,6 +20,47 @@ typedef struct no{
 // Cria um elemento da RBT.
 no *createNo(void *inf);
 
+extern no* EXTERNAL;
+
+no *createNoExternal();
+
+int positionChildFromParent(no *rbt);
+
+no *uncle(no *rbt);
+
+no *sibling(no *rbt);
+
+int isleaf(no *rbt);
+
+int isRed(no *rbt);
+
+no *search(no *rbt , void *inf, int infoComp(void *, void *));
+
+no *searchParent(no *rbt , void *inf, int infoComp(void *, void *));
+
+void R_RotationRBT(no **root ,no *pivo);
+
+void L_RotationRBT(no **root, no *pivo);
+
+void transferParent(no **root, no *rbt, no *target);
+
+no *findSmalLestNo(no *avl);
+
+void balanceDelete(no **root, no *rbt);
+
+void balance(no **root, no *newNo);
+
+no *deleteRBT(no **root, no *delete);
+
+no *insertRBT(no **root, void *inf, int infoComp(void *, void *));
+
+void toStringRBT(no *rbt , int level, void *toStringInfoId(void *));
+
+void toStringColorRBT(no *rbt , int level);
+
+
+
+
 // // Retorna sub-arvore esquerda.
 // no *leftRBT(no *rbt);
 

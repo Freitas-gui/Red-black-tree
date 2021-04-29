@@ -1,58 +1,79 @@
 // Guilherme Freitas da Silva
 // Gustavo Henrique Vago Brunetti
 
-#include "RBT.c"
+#include "RBT.h"
 
 // Estrutura para representar uma informacao que se refere ao cadastro de uma pessoa.
-typedef struct info{
+typedef struct article{
     int id;
-    char *name;
-    int age;
-}info;
+    int year;
+    char *author;
+    char *title;
+    char *magazine;
+    char *DOI;
+    char *keyword;
+}article;
 
-info *createInfo(int id, char name[], int age){
+article *createArticle(int id, int year, char author[], char title[], char magazine[], char DOI[], char keyword[]){
     // Aloca espaco de memoria.
-    info *newInfo = (info*)malloc(sizeof(info));
-    char *newName = (char*)malloc(sizeof(char)*(strlen(name)));
+    article *newArticle = (article*)malloc(sizeof(article));
+    char *newAuthor = (char*)malloc(sizeof(char)*(strlen(author)));
+    char *newTitle = (char*)malloc(sizeof(char)*(strlen(title)));
+    char *newMagazine = (char*)malloc(sizeof(char)*(strlen(magazine)));
+    char *newDOI = (char*)malloc(sizeof(char)*(strlen(DOI)));
+    char *newKeyword = (char*)malloc(sizeof(char)*(strlen(keyword)));
 
-    if(!newInfo || !newName)
+    if(!newArticle || !newAuthor || !newTitle || !newMagazine || !newDOI || !newKeyword)
         return NULL;
     else{
         // Copia o valor passado no parametro para o novo espaco de memoria alocado.
-        strcpy(newName, name);
+        strcpy(newAuthor, author);
+        strcpy(newTitle, title);
+        strcpy(newMagazine, magazine);
+        strcpy(newDOI, DOI);
+        strcpy(newKeyword, keyword);
+        
 
-        // Se tiver conseguido alocar, entao seta os valores novo info.
-        newInfo->id = id;
-        newInfo->name = newName;
-        newInfo->age = age;
+        // Se tiver conseguido alocar, entao seta os valores novo article.
+        newArticle->id = id;
+        newArticle->author = newAuthor;
+        newArticle->title = newTitle;
+        newArticle->magazine = newMagazine;
+        newArticle->DOI = newDOI;
+        newArticle->keyword = newKeyword;
+        newArticle->year = year;
 
-        return newInfo;
+        return newArticle;
     }
 }
 
-// Imprime todos os valores da informacao de uma pessoa em formato JSON.
-void toStringInfo(info *inf){
+// Imprime todos os valores da articlermacao de uma pessoa em formato JSON.
+void toStringarticle(article *inf){
     if (!inf) return;
-    printf("info {\n id : %d,", inf->id);
-    printf("\n nome : %s,", inf->name);
-    printf("\n idade : %d \n}", inf->age);
+    printf("article {\n id : %d,", inf->id);
+    printf("\n author : %s,", inf->author);
+    printf("\n title : %s,", inf->title);
+    printf("\n magazine : %s,", inf->magazine);
+    printf("\n DOI : %s,", inf->DOI);
+    printf("\n keyword : %s,", inf->keyword);
+    printf("\n year : %d \n}", inf->year);
 }
 
 // Imprime o valor do id de uma pessoa.
-void toStringInfoid(info *inf){
-    printf("%d\n", inf->id);
+void toStringArticleid(article *inf){
+    printf("%d", inf->id);
 }
-// Ponteiro para usar toStringInfoid dentro das funcoes de AVL, que manipulam tipo generico de dados.
-void (*toStringInfoid_ptr)(info *) = &toStringInfoid;
+// Ponteiro para usar toStringArticleid dentro das funcoes de AVL, que manipulam tipo generico de dados.
+void (*toStringArticleid_ptr)(article *) = &toStringArticleid;
 
 // Verifica se o id de (a) é menor, igual ou maior que (b).
-int infoComp(info *a, info *b){
+int articleComp(article *a, article *b){
     if (a->id < b->id) return -1;
     if (a->id == b->id) return 0;
     if (a->id > b->id) return 1;
 }
-// Ponteiro para usar infoComp dentro das funcoes de AVL, que manipulam tipo generico de dados.
-int (*infoComp_ptr)(info *, info *) = &infoComp;
+// Ponteiro para usar articleComp dentro das funcoes de AVL, que manipulam tipo generico de dados.
+int (*articleComp_ptr)(article *, article *) = &articleComp;
 
 // Limpa o buffer do teclado, utilizado apos um scanf.
 void cleanBuffer(){
@@ -62,7 +83,7 @@ void cleanBuffer(){
 
 int main()
 {
-    no *EXTERNAL = createNoExternal();
+    EXTERNAL = createNoExternal();
     int op;
     // Estrutura utilizada para inserir, deletar e mostrar dados de pessoas.
 	no *rbt = NULL;
@@ -82,9 +103,13 @@ int main()
         cleanBuffer();
 
         switch (op){
-            char name[30];
-            int age, id;
-            info *inf;
+            char author[200];
+            char title[200];
+            char magazine[200];
+            char DOI[20];
+            char keyword[200];
+            int year, id;
+            article *inf;
             no *deleted, *inserted, *searched;
 
             case 0:
@@ -92,40 +117,17 @@ int main()
                 scanf("%d", &id);
                 cleanBuffer();
 
-                // inf = createInfo(9, name, age);
-                // rbt = createNo(inf);
-
-                // inf = createInfo(8, name, age);
-                // inserted = createNo(inf);
-                // rbt->left = inserted;
-                // inserted->parent = rbt;
-
-                // inf = createInfo(7, name, age);
-                // deleted = createNo(inf);
-                // inserted->left = deleted;
-                // deleted->parent = inserted;
-
-                // inf = createInfo(6, name, age);
-                // inserted = createNo(inf);
-                // deleted->left = inserted;
-                // inserted->parent = deleted;
-
-                // inf = createInfo(5, name, age);
-                // deleted = createNo(inf);
-                // inserted->left = deleted;
-                // deleted->parent = inserted;
-
-                inf = createInfo(id, "name", 0);
-                searched = search(rbt, inf, infoComp_ptr);
+                inf = createArticle(id, 0, "", "", "", "", "");
+                searched = search(rbt, inf, articleComp_ptr);
                 // printf("\n");
-                // toStringInfo(searched->inf);
+                // toStringarticle(searched->inf);
                 // printf("\n");
-                if (!searched) break;
-                    deleted = deleteRBT(&rbt, &searched);
+                if (!searched || searched == EXTERNAL) break;
+                    deleted = deleteRBT(&rbt, searched);
 
                 printf("\n");
                 if (deleted)
-                    toStringInfo(deleted->inf);
+                    toStringarticle(deleted->inf);
                 printf("\n");
 
                 // callBackRevert(&searched);
@@ -139,42 +141,50 @@ int main()
                 cleanBuffer();
 
                 printf("Digite o primeiro nome da pessoa: ");
-                scanf("%30s", name);
+                scanf("%200s", author);
+                cleanBuffer();
+
+                printf("Digite o primeiro nome da pessoa: ");
+                scanf("%200s", title);
+                cleanBuffer();
+
+                printf("Digite o primeiro nome da pessoa: ");
+                scanf("%200s", magazine);
+                cleanBuffer();
+
+                printf("Digite o primeiro nome da pessoa: ");
+                scanf("%20s", DOI);
+                cleanBuffer();
+
+                printf("Digite o primeiro nome da pessoa: ");
+                scanf("%200s", keyword);
                 cleanBuffer();
 
                 printf("Digite a idade da pessoa: ");
-                scanf("%d", &age);
+                scanf("%d", &year);
                 cleanBuffer();
 
-                inf = createInfo(id, name, age);
-                inserted = insertRBT(&rbt, inf, infoComp_ptr);
-
-
-                if( inserted == NULL )
-                    printf("\nErro: id ja existente\n");
-                else{
-                    printf("\n");
-                    toStringInfo(inserted->inf);
-                    printf("\n");
-                }
+                inf = createArticle(id, year, author, title, magazine, DOI, keyword);
+                insertRBT(&rbt, inf, articleComp_ptr);
+                
                 break;
 
             case 2:
-                srand(time(NULL));
-                int range = 0;
-                printf("Digite a quantidade de elementos aleatorios que deseja inserir: ");
-                scanf("%d", &range);
-                for(int index = 0; index < range; index ++){
-                    inf = createInfo(rand() % 1000, "Aleatorio", 0);
-                    inserted = insertRBT(&rbt, inf, infoComp_ptr);
-                }
+                // srand(time(NULL));
+                // int range = 0;
+                // printf("Digite a quantidade de elementos aleatorios que deseja inserir: ");
+                // scanf("%d", &range);
+                // for(int index = 0; index < range; index ++){
+                //     inf = createArticle(rand() % 1000, "Aleatorio", 0);
+                //     insertRBT(&rbt, inf, articleComp_ptr);
+                // }
             case 3:
                 printf("\n");
                 toStringColorRBT(rbt, 0);
                 break;
             case 4:
                 printf("\n");
-                toStringRBT(rbt, 0, toStringInfoid_ptr);
+                toStringRBT(rbt, 0, toStringArticleid_ptr);
                 break;
         }
     }
