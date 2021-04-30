@@ -17,94 +17,69 @@ typedef struct no{
     colorBR color;
 }no;
 
-// Cria um elemento da RBT.
-no *createNo(void *inf);
-
+// No externo da RBT, o pai da raiz
+// e as sub-arvores dos nos que nao possuem filhos como elementos de informacao
+// a esquerda ou a direita deve apontar para ele.
 extern no* EXTERNAL;
 
+// Cria e retorna o elemento EXTERNO da RBT.
 no *createNoExternal();
 
-int positionChildFromParent(no *rbt);
+// Cria e retorna um elemento da RBT com informacao.
+// Informacao que o no deve armazenar.
+no *createNo(void *inf);
 
-no *uncle(no *rbt);
-
-no *sibling(no *rbt);
-
-int isleaf(no *rbt);
-
+// Retorna 1 se o valor de color do no eh red e 0 se for black.
+// rbt = elemento que deseja-se saber a cor.
 int isRed(no *rbt);
 
+// Procura e retorna um elemento na RBT que tenha a mesma informacao fornecida no parametro 'inf'.
+// rbt = raiz da arvore.
+// inf = informacao buscada.
+// infoComp = funcao para comparar informacoes. 
 no *search(no *rbt , void *inf, int infoComp(void *, void *));
 
-no *searchParent(no *rbt , void *inf, int infoComp(void *, void *));
-
-void R_RotationRBT(no **root ,no *pivo);
-
+// Rotacao a esquerda.
+// root = raiz da arvore.
+// pivo = elemento pivo do no que desbalanceou a arvore.
 void L_RotationRBT(no **root, no *pivo);
 
+// Rotacao a direita.
+// root = raiz da arvore.
+// pivo = elemento pivo do no que desbalanceou a arvore.
+void R_RotationRBT(no **root, no *pivo);
+
+// Transfere o pai do no rbt para o no target.
 void transferParent(no **root, no *rbt, no *target);
 
-no *findSmalLestNo(no *avl);
+// Retorna o no considerado o menor elemento na sub-arvore de raiz = rbt.
+// avl = raiz da subarvore que a funcao comeca a busca.
+no *findSmalLestNo(no *rbt);
 
+// Utilizada na remocao, para rebalancear a arvore apos o elemento ser deletado.
+// root = raiz da arvore.
+// rbt = elemento com uma color black adicional que causou o desbalanceamento.
 void balanceDelete(no **root, no *rbt);
 
-void balance(no **root, no *newNo);
-
+// Remove um elemento da arvore.
+// root = raiz da arvore.
+// delete = elemento que deve ser deletado.
 no *deleteRBT(no **root, no *delete);
 
+// Utilizada na incercao, para rebalancear a arvore apos o elemento ser inserido.
+// root = raiz da arvore.
+// newNo = elemento que causou o desbalanceamento.
+void balance(no **root, no *newNo);
+
+// Insere um elemento na arvore.
+// root = raiz da arvore.
+// inf = elemento de informacao que deve ser inserido.
 no *insertRBT(no **root, void *inf, int infoComp(void *, void *));
 
+// Imprime a RBT, visualmente rotacionada em um angulo de 90 graus anti-horario.
+// Ex de uma chave impressa abaixo com um elemento de color = black.
+// [12: 0]
 void toStringRBT(no *rbt , int level, void *toStringInfoId(void *));
 
-void toStringColorRBT(no *rbt , int level);
-
-
-
-
-// // Retorna sub-arvore esquerda.
-// no *leftRBT(no *rbt);
-
-// // Retorna sub-arvore direita.
-// no *rightRBT(no *rbt);
-
-// // Retorna um elemento na RBT que tenha a mesma informacao fornecida no parametro 'inf'.
-// // Se nao encontrado retorna NULl.
-// no *search(no *rbt , void *inf, int infoComp(void *, void *));
-
-// // Retorna a altura da RBT que eh relativa ao nivel maximo das folhas.
-// int height(no *rbt);
-
-// // Retorna o no considerado o menor elemento na RBT.
-// no *findSmalLestNo(no *rbt);
-
-// // Insercao na sub-arvore direita, da sub-arvore esquerda da raiz.
-// // Rotacao dupla a direita.
-// void LR_RotationRBT(no **rbt);
-
-// // Insercao na sub-arvore esquerda, da sub-arvore direita da raiz.
-// // Rotacao dupla a esquerda.
-// void RL_RotationRBT(no **rbt);
-
-// // Insercao na sub-arvore direita, da sub-arvore direita da raiz.
-// // Rotacao a esquerda.
-// void RR_RotationRBT(no **rbt);
-
-// // Insercao na sub-arvore esquerda, da sub-arvore esquerda da raiz.
-// // Rotacao a direita.
-// void LL_RotationRBT(no **rbt);
-
-// // Segunda parte para lidar com a logica de insercao balanceada. Utilizada pela insertRBT.
-// // Se a insercao for bem sucedida, retorna o no que foi inserido, se o elemento ja existir,
-// //na RBT, retorna NULL.
-// no *auxInsertRBT(no **rbt, void *inf, int *growup, int infoComp(void *, void *));
-
-// // Insere um novo elemento na RBT e realiza rotacoes caso necessario. Utiliza a auxInsertRBT.
-// no *insertRBT(no **rbt, void *inf, int infoComp(void *, void *));
-
-// // Deleta um elemento na RBT e realiza rotacoes caso necessario.
-// no *deleteNo(no **rbt, void *inf, int infoComp(void *, void *) );
-
-// // Imprime a RBT, visualmente rotacionada em um angulo de 90 graus anti-horario.
-// void toStringRBT(no *rbt , int nivel, void *toStringInfoId(void *));
 
 #endif // __RBT_H__
