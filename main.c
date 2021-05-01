@@ -1,6 +1,3 @@
-// Guilherme Freitas da Silva
-// Gustavo Henrique Vago Brunetti
-
 #include "RBT.h"
 
 // Estrutura para representar uma informacao que se refere ao cadastro de um artigo.

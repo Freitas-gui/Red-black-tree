@@ -1,6 +1,3 @@
-// Guilherme Freitas da Silva
-// Gustavo Henrique Vago Brunetti
-
 #ifndef __RBT_H__
 #define __RBT_H__
 

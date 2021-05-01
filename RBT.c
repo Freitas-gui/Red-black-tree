@@ -1,6 +1,3 @@
-// Guilherme Freitas da Silva
-// Gustavo Henrique Vago Brunetti
-
 #include "RBT.h"
 
 // No externo da RBT.
