@@ -19,7 +19,7 @@ typedef struct no{
 
 // No externo da RBT, o pai da raiz
 // e as sub-arvores dos nos que nao possuem filhos como elementos de informacao
-// a esquerda ou a direita deve apontar para ele.
+// a esquerda ou a direita devem apontar para ele.
 extern no* EXTERNAL;
 
 // Cria e retorna o elemento EXTERNO da RBT.
@@ -69,7 +69,7 @@ no *deleteRBT(no **root, no *delete);
 // Utilizada na incercao, para rebalancear a arvore apos o elemento ser inserido.
 // root = raiz da arvore.
 // newNo = elemento que causou o desbalanceamento.
-void balance(no **root, no *newNo);
+void balanceInsert(no **root, no *newNo);
 
 // Insere um elemento na arvore.
 // root = raiz da arvore.

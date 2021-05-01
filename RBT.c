@@ -259,7 +259,7 @@ no *deleteRBT(no **root, no *delete){
         successor->left->parent = successor;
         successor->color = delete->color;
     }
-    // Se o sucessor tinha color = black, houve um desbalanceamento.s
+    // Se o sucessor tinha color = black, houve um desbalanceamento.
     // Eh como se auxSucessor tivesse uma cor preta a mais.
     if (originalColor == black){
         balanceDelete((root), auxSuccessor);
@@ -268,7 +268,7 @@ no *deleteRBT(no **root, no *delete){
 }
 
 // Utilizada na incercao, para rebalancear a arvore apos o elemento ser inserido.
-void balance(no **root, no *newNo){
+void balanceInsert(no **root, no *newNo){
     no *parent, *grandpa, *uncle;
 
     // Nao pode haver um elemento vermelho com pai vermelho.
@@ -366,7 +366,7 @@ no *insertRBT(no **root, void *inf, int infoComp(void *, void *)){
         positionParent->right = newNo;
     
     // Rebalancea a arvore.
-    balance(&(*root), newNo);
+    balanceInsert(&(*root), newNo);
     return newNo;
 }
 

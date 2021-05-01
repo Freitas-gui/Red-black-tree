@@ -51,7 +51,7 @@ article *createArticle(int id, int year, char author[], char title[], char magaz
 void toStringArticle(article *inf){
     if (!inf) return;
     printf("article {");
-    printf("\n     ids : %d,", inf->id);
+    printf("\n     id : %d,", inf->id);
     printf("\n     author : %s,", inf->author);
     printf("\n     title : %s,", inf->title);
     printf("\n     magazine : %s,", inf->magazine);
@@ -111,64 +111,50 @@ int main()
             article *inf;
             no *deleted, *inserted, *searched;
 
-            case 0:
-                printf("Digite um numero inteiro para representar o id do artigo a ser buscada: ");
-                scanf("%d", &id);
-                cleanBuffer();
-
-                inf = createArticle(id, 0, "", "", "", "", "");
-                searched = search(rbt, inf, articleComp_ptr);
-                // printf("\n");
-                // toStringArticle(searched->inf);
-                // printf("\n");
-                if (!searched || searched == EXTERNAL) break;
-                    deleted = deleteRBT(&rbt, searched);
-
-                printf("\n");
-                if (deleted)
-                    toStringArticle(deleted->inf);
-                printf("\n");
-
-                // callBackRevert(&searched);
-
-                break;
-
             // Insere um elemento na arvore.
             case 1:
                 printf("Digite um numero inteiro para representar o id do artigo a ser cadastrada: ");
                 scanf("%d", &id);
                 cleanBuffer();
 
-                // printf("Digite o ano de publicação do artigo: ");
-                // scanf("%d", &year);
-                // cleanBuffer();
+                printf("Digite o ano de publicacao do artigo: ");
+                scanf("%d", &year);
+                cleanBuffer();
 
-                // printf("Digite o primeiro nome do artigo: ");
-                // scanf("%200s", author);
-                // cleanBuffer();
+                printf("Digite o nome do autor do artigo: ");
+                scanf("%200s", author);
+                cleanBuffer();
 
-                // printf("Digite o primeiro nome do artigo: ");
-                // scanf("%200s", title);
-                // cleanBuffer();
+                printf("Digite o titulo do artigo: ");
+                scanf("%200s", title);
+                cleanBuffer();
 
-                // printf("Digite o primeiro nome do artigo: ");
-                // scanf("%200s", magazine);
-                // cleanBuffer();
+                printf("Digite o nome da revista que publicou o artigo: ");
+                scanf("%200s", magazine);
+                cleanBuffer();
 
-                // printf("Digite o primeiro nome do artigo: ");
-                // scanf("%20s", DOI);
-                // cleanBuffer();
+                printf("Digite DOI do artigo: ");
+                scanf("%20s", DOI);
+                cleanBuffer();
 
-                // printf("Digite o primeiro nome do artigo: ");
-                // scanf("%200s", keyword);
-                // cleanBuffer();
+                printf("Digite uma palavra-chave para o artigo: ");
+                scanf("%200s", keyword);
+                cleanBuffer();
 
-                // inf = createArticle(id, year, author, title, magazine, DOI, keyword);
-                inf = createArticle(id, 0, "", "", "", "", "");
-                insertRBT(&rbt, inf, articleComp_ptr);
+                inf = createArticle(id, year, author, title, magazine, DOI, keyword);
+                inserted = insertRBT(&rbt, inf, articleComp_ptr);
                 
+                if( inserted == NULL )
+                    printf("\nErro: id ja existente\n");
+                else{
+                    printf("\n");
+                    toStringArticle(inserted->inf);
+                    printf("\n");
+                }
+
                 break;
 
+            // Deleta um elemento da árvore.
             case 2:
                 printf("Digite o id do artigo a ser deletado: ");
                 scanf("%d", &id);
@@ -189,9 +175,10 @@ int main()
                 printf("\n");
 
                 break;
-            // Procura um elemento na arvore que tenha uma informacao com id igual ao informado pelo usuario.
+
+            // Procura um elemento na arvore que tenha um artigo com id igual ao informado pelo usuario.
             case 3:
-                printf("Digite o id do artigo a ser buscada: ");
+                printf("Digite o id do artigo a ser buscado: ");
                 scanf("%d", &id);
                 cleanBuffer();
                 
@@ -199,7 +186,7 @@ int main()
                 searched = search(rbt, inf, articleComp_ptr);
 
                 if ( !searched || searched == EXTERNAL){
-                    printf("\nO artigo com o id = %d, nao foi encontrada\n", id);
+                    printf("\nO artigo com o id = %d, nao foi encontrado\n", id);
                     break;
                 }
                 else{
@@ -208,6 +195,7 @@ int main()
                     printf("\n");
                 }
                 break;
+            // Imprime todos os ids dos artigos armazenados na RBT em formato de arvore e acompanhandos da cor de cada no.
             case 4:
                 printf("\n");
                 toStringRBT(rbt, 0, toStringArticleid_ptr);
